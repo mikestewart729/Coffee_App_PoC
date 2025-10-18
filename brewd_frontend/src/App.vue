@@ -43,7 +43,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
               <div class="w-1/4 flex justify-end">
                 <div class="menu-right">
-                      <a href="#" class="mr-4 py-4 px-6 bg-mykonos-secondary text-mykonos-accent text-xl rounded-lg">Log in</a>
+                      <RouterLink to="/login" class="mr-4 py-4 px-6 bg-mykonos-secondary text-mykonos-accent text-xl rounded-lg">Log in</RouterLink>
                       <RouterLink to="/signup" class="py-4 px-6 bg-mykonos-primary text-mykonos-accent text-xl rounded-lg">Sign up</RouterLink>
                 </div>
               </div>
