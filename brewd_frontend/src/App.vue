@@ -1,7 +1,3 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-</script>
-
 <template>
   <div class="min-h-screen bg-mykonos-background">
     <nav class="py-10 px-8 bg-mykonos-background border-b border-mykonos-primary">
@@ -14,7 +10,7 @@ import { RouterLink, RouterView } from 'vue-router'
               </div>
 
               <div class="w-2/4">
-                <div class="menu-center flex space-x-6 md:space-x-12 justify-center">
+                <div v-if="userStore.user.isAuthenticated" class="menu-center flex space-x-6 md:space-x-12 justify-center">
                   <!-- Home/NearbyShopsView -->
                   <RouterLink to="/">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
@@ -45,10 +41,18 @@ import { RouterLink, RouterView } from 'vue-router'
               </div>
 
               <div class="w-1/4 flex justify-end">
-                <div class="menu-right flex flex-wrap gap-2 md:gap-0 justify-end">
-                      <RouterLink to="/login" class="md:mr-4 py-2 px-3 md:py-4 md:px-6 bg-mykonos-secondary text-mykonos-accent text-sm md:text-xl rounded-lg whitespace-nowrap">Log in</RouterLink>
-                      <RouterLink to="/signup" class="py-2 px-3 md:py-4 md:px-6 bg-mykonos-primary text-mykonos-accent text-sm md:text-xl rounded-lg whitespace-nowrap">Sign up</RouterLink>
-                </div>
+                <template  v-if="userStore.user.isAuthenticated">
+                  <div class="menu-right flex flex-wrap gap-2 md:gap-0 justify-end">
+                      <button @click="logout" class="md:mr-4 py-2 px-3 md:py-4 md:px-6 bg-mykonos-secondary text-mykonos-accent text-sm md:text-xl rounded-lg whitespace-nowrap">Log out</button>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <div class="menu-right flex flex-wrap gap-2 md:gap-0 justify-end">
+                    <RouterLink to="/login" class="md:mr-4 py-2 px-3 md:py-4 md:px-6 bg-mykonos-secondary text-mykonos-accent text-sm md:text-xl rounded-lg whitespace-nowrap">Log in</RouterLink>
+                    <RouterLink to="/signup" class="py-2 px-3 md:py-4 md:px-6 bg-mykonos-primary text-mykonos-accent text-sm md:text-xl rounded-lg whitespace-nowrap">Sign up</RouterLink>
+                  </div>
+                </template>
               </div>
             </div>
         </div>
@@ -57,5 +61,49 @@ import { RouterLink, RouterView } from 'vue-router'
     <main class="px-8 py-6 bg-mykonos-background">
         <RouterView />
     </main>
+
+    <Toast />
   </div>
 </template>
+
+<script>
+    import axios from 'axios'
+    import Toast from '@/components/Toast.vue'
+    import { useUserStore } from '@/stores/user'
+
+    export default {
+        setup() {
+            const userStore = useUserStore()
+
+            return {
+                userStore
+            }
+        },
+
+        components: {
+            Toast
+        },
+
+        beforeCreate() {
+            this.userStore.initStore()
+
+            const token = this.userStore.user.access
+
+            if (token) {
+                axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+            } else {
+                axios.defaults.headers.common["Authorization"] = "";
+            }
+        },
+
+        methods: {
+          logout() {
+            console.log('logout')
+
+            this.userStore.removeToken()
+
+            this.$router.push('/login')
+          }
+        },
+    }
+</script>

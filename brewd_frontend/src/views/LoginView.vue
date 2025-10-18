@@ -20,14 +20,20 @@
             <div class="p-12 bg-mykonos-surface border border-mykonos-primary rounded-lg">
                 <form class="space-y-6">
                     <div>
-                        <label class="text-mykonos-textPrimary">E-mail</label><br/>
-                        <input type="email" placeholder="Your e-mail address" class="w-full mt-2 py-4 px-6 border border-mykonos-secondary rounded-lg text-mykonos-textSecondary"/>
+                        <label class="text-mykonos-textPrimary">Username</label><br/>
+                        <input type="username" v-model="form.username" placeholder="Your username" class="w-full mt-2 py-4 px-6 border border-mykonos-secondary rounded-lg text-mykonos-textSecondary"/>
                     </div>
 
                     <div>
                         <label class="text-mykonos-textPrimary">Password</label><br/>
-                        <input type="password"  placeholder="Your desired password" class="w-full mt-2 py-4 px-6 border border-mykonos-secondary rounded-lg text-mykonos-textSecondary"/>
+                        <input type="password" v-model="form.password" placeholder="Your password" class="w-full mt-2 py-4 px-6 border border-mykonos-secondary rounded-lg text-mykonos-textSecondary"/>
                     </div>
+
+                    <template v-if="errors.length > 0">
+                        <div class="bg-mykonos-error text-mykonos-textPrimary rounded-lg p-6">
+                            <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+                        </div>
+                    </template>
 
                     <div>
                         <button class="py-4 px-6 bg-mykonos-secondary text-mykonos-accent rounded-lg">Log in</button>
@@ -39,7 +45,82 @@
 </template>
 
 <script>
+import axios from 'axios'
+import { useUserStore } from '@/stores/user'
+
 export default {
-  name: 'LoginView'
+    setup() {
+        const userStore = useUserStore()
+
+        return {
+            userStore
+        }
+    },
+
+    data() {
+        return {
+            form: {
+                email: '',
+                password: '',
+            },
+            errors: []
+        }
+    },
+
+    methods: {
+        async submitForm() {
+            this.errors = []
+
+            if (this.form.email === '') {
+                this.errors.push('Your e-mail is missing')
+            }
+
+            if (this.form.password === '') {
+                this.errors.push('The password is missing')
+            }
+
+            if (this.errors.length > 0) {
+                return this.errors
+            }
+
+            console.log('Submitting form', this.form)
+
+            try {
+                const response = await axios.post('/api/signup/', {
+                    username: this.form.username,
+                    password: this.form.password
+                })
+
+                console.log('Response:', response.data)
+
+                this.form.username = ''
+                this.form.password = ''
+            } catch (error) {
+                const errorData = error.response?.data
+
+                console.log('Error response data:', errorData)
+
+                if (errorData?.errors) {
+                    // Handle Django serializer errors
+                    Object.entries(errorData.errors).forEach(([field, messages]) => {
+                        if (Array.isArray(messages)) {
+                            messages.forEach(msg => this.errors.push(`${field}: ${msg}`))
+                        }
+                    })
+                } else if (errorData?.error) {
+                    this.errors.push(errorData.error)
+                } else {
+                    this.errors.push('Login failed. Please try again.')
+                }
+
+                // Show first error in toast
+                this.toastStore.showToast(
+                    5000, 
+                    this.errors[0] || 'Login failed', 
+                    'bg-mykonos-error text-mykonos-textPrimary'
+                )
+            }
+        }
+    }
 }
 </script>
