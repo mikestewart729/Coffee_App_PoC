@@ -18,7 +18,7 @@
 
         <div class="main-right">
             <div class="p-12 bg-mykonos-surface border border-mykonos-primary rounded-lg">
-                <form class="space-y-6">
+                <form class="space-y-6" @submit.prevent="submitForm">
                     <div>
                         <label class="text-mykonos-textPrimary">Username</label><br/>
                         <input type="username" v-model="form.username" placeholder="Your username" class="w-full mt-2 py-4 px-6 border border-mykonos-secondary rounded-lg text-mykonos-textSecondary"/>
@@ -29,14 +29,20 @@
                         <input type="password" v-model="form.password" placeholder="Your password" class="w-full mt-2 py-4 px-6 border border-mykonos-secondary rounded-lg text-mykonos-textSecondary"/>
                     </div>
 
-                    <template v-if="errors.length > 0">
+                    <template v-if="this.errors.length > 0">
                         <div class="bg-mykonos-error text-mykonos-textPrimary rounded-lg p-6">
                             <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
                         </div>
                     </template>
 
                     <div>
-                        <button class="py-4 px-6 bg-mykonos-secondary text-mykonos-accent rounded-lg">Log in</button>
+                        <button 
+                            type="submit"
+                            :disabled="isLoading"
+                            class="py-4 px-6 bg-mykonos-secondary text-mykonos-accent rounded-lg"
+                        >
+                            {{ isLoading ? 'Logging in...' : 'Log in' }}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -47,13 +53,16 @@
 <script>
 import axios from 'axios'
 import { useUserStore } from '@/stores/user'
+import { useToastStore } from '@/stores/toast'
 
 export default {
     setup() {
         const userStore = useUserStore()
+        const toastStore = useToastStore()
 
         return {
-            userStore
+            userStore,
+            toastStore,
         }
     },
 
@@ -63,7 +72,8 @@ export default {
                 email: '',
                 password: '',
             },
-            errors: []
+            errors: [],
+            isLoading: false,
         }
     },
 
@@ -71,8 +81,8 @@ export default {
         async submitForm() {
             this.errors = []
 
-            if (this.form.email === '') {
-                this.errors.push('Your e-mail is missing')
+            if (this.form.username === '') {
+                this.errors.push('Your username is missing')
             }
 
             if (this.form.password === '') {
@@ -83,42 +93,44 @@ export default {
                 return this.errors
             }
 
-            console.log('Submitting form', this.form)
-
             try {
-                const response = await axios.post('/api/signup/', {
-                    username: this.form.username,
-                    password: this.form.password
-                })
+                const response = await this.userStore.login(
+                    this.form.username,
+                    this.form.password
+                )
 
-                console.log('Response:', response.data)
+                if (response.success) {
+                    this.toastStore.showToast(
+                        3000,
+                        `Welcome back, ${this.userStore.user?.username || 'user'}!`,
+                        'bg-mykonos-primary text-mykonos-accent'
+                    )
 
-                this.form.username = ''
-                this.form.password = ''
-            } catch (error) {
-                const errorData = error.response?.data
+                    // Clear form
+                    this.form.username = ''
+                    this.form.password = ''
 
-                console.log('Error response data:', errorData)
-
-                if (errorData?.errors) {
-                    // Handle Django serializer errors
-                    Object.entries(errorData.errors).forEach(([field, messages]) => {
-                        if (Array.isArray(messages)) {
-                            messages.forEach(msg => this.errors.push(`${field}: ${msg}`))
-                        }
-                    })
-                } else if (errorData?.error) {
-                    this.errors.push(errorData.error)
+                    // Redirect to home page
+                    console.log('Redirecting to home...')
+                    await this.$router.push('/')
                 } else {
-                    this.errors.push('Login failed. Please try again.')
+                    this.errors.push(result.error || 'Invalid username or password')
+                    this.toastStore.showToast(
+                        5000,
+                        result.error || 'Invalid username or password',
+                        'bg-mykonos-error text-mykonos-textPrimary'
+                    )
                 }
-
-                // Show first error in toast
+            } catch (error) {
+                console.error('Login error:', error)
+                this.errors.push('An unexpected error occurred. Please try again.')
                 this.toastStore.showToast(
-                    5000, 
-                    this.errors[0] || 'Login failed', 
+                    5000,
+                    'Login failed. Please try again.',
                     'bg-mykonos-error text-mykonos-textPrimary'
                 )
+            } finally {
+                this.isLoading = false
             }
         }
     }

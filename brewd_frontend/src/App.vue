@@ -10,7 +10,7 @@
               </div>
 
               <div class="w-2/4">
-                <div v-if="userStore.user.isAuthenticated" class="menu-center flex space-x-6 md:space-x-12 justify-center">
+                <div v-if="userStore.isAuthenticated" class="menu-center flex space-x-6 md:space-x-12 justify-center">
                   <!-- Home/NearbyShopsView -->
                   <RouterLink to="/">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
@@ -41,7 +41,7 @@
               </div>
 
               <div class="w-1/4 flex justify-end">
-                <template  v-if="userStore.user.isAuthenticated">
+                <template  v-if="userStore.isAuthenticated">
                   <div class="menu-right flex flex-wrap gap-2 md:gap-0 justify-end">
                       <button @click="logout" class="md:mr-4 py-2 px-3 md:py-4 md:px-6 bg-mykonos-secondary text-mykonos-accent text-sm md:text-xl rounded-lg whitespace-nowrap">Log out</button>
                   </div>
@@ -84,23 +84,17 @@
             Toast
         },
 
-        beforeCreate() {
-            this.userStore.initStore()
-
-            const token = this.userStore.user.access
-
-            if (token) {
-                axios.defaults.headers.common["Authorization"] = "Bearer " + token;
-            } else {
-                axios.defaults.headers.common["Authorization"] = "";
-            }
+        mounted() {
+            this.userStore.initializeAuth()
         },
 
         methods: {
           logout() {
             console.log('logout')
 
-            this.userStore.removeToken()
+            this.userStore.logout()
+
+            delete axios.defaults.headers.common["Authorization"]
 
             this.$router.push('/login')
           }

@@ -117,9 +117,13 @@ export default {
                 )
 
                 this.form.email = ''
-                this.form.name = ''
+                this.form.username = ''
                 this.form.password1 = ''
                 this.form.password2 = ''
+
+                // Redirect to login page
+                console.log('Redirecting to login...')
+                await this.$router.push('/login')
             } catch (error) {
                 const errorData = error.response?.data
 
