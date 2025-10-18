@@ -9,8 +9,8 @@ defineProps({
 
 <template>
   <div class="greetings">
-    <h1 class="retro-primary">{{ msg }}</h1>
-    <h3 class="retro-textPrimary">
+    <h1 class="bg-retro-primary text-retro-accent">{{ msg }}</h1>
+    <h3 class="bg-retro-surface text-retro-textPrimary">
       You’ve successfully created a project with
       <a href="https://vite.dev/" target="_blank" rel="noopener">Vite</a> +
       <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
