@@ -3,7 +3,8 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-    <nav class="py-10 px-8 bg-mykonos-background border-b border-mykonos-background">
+  <div class="min-h-screen bg-mykonos-background">
+    <nav class="py-10 px-8 bg-mykonos-background border-b border-mykonos-primary">
         <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between">
               <div class="w-1/4">
@@ -43,10 +44,15 @@ import { RouterLink, RouterView } from 'vue-router'
               <div class="w-1/4 flex justify-end">
                 <div class="menu-right">
                       <a href="#" class="mr-4 py-4 px-6 bg-mykonos-secondary text-mykonos-accent text-xl rounded-lg">Log in</a>
-                      <a href="#" class="py-4 px-6 bg-mykonos-primary text-mykonos-accent text-xl rounded-lg">Sign up</a>
+                      <RouterLink to="/signup" class="py-4 px-6 bg-mykonos-primary text-mykonos-accent text-xl rounded-lg">Sign up</RouterLink>
                 </div>
               </div>
             </div>
         </div>
     </nav>
+
+    <main class="px-8 py-6 bg-mykonos-background">
+        <RouterView />
+    </main>
+  </div>
 </template>
