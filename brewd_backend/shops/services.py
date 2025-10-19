@@ -49,6 +49,7 @@ class GooglePlacesService:
 
         headers = cls._get_headers()
         body = {
+            "rankPreference": "DISTANCE",
             "includedTypes": ["cafe", "coffee_shop"],
             "maxResultCount": 20,
             "locationRestriction": {
