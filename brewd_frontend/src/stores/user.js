@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { getCurrentPosition } from '@/utils/geolocation'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
@@ -9,6 +10,7 @@ export const useUserStore = defineStore('user', {
     access: null,
     refresh: null,
     isAuthenticated: false,
+    userLocation: null,
   }),
 
   actions: {
@@ -32,6 +34,9 @@ export const useUserStore = defineStore('user', {
         // Fetch user details
         await this.fetchUser()
 
+        // Get the geolocation using new util function
+        await this.updateUserLocation()
+
         return { success: true }
       } catch (error) {
         console.error('Login error:', error.response?.data || error)
@@ -53,6 +58,28 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    async updateUserLocation() {
+        try {
+            console.log('Getting user location...')
+            const position = await getCurrentPosition()
+
+            this.userLocation = {
+                latitude: position.latitude,
+                longitude: position.longitude,
+            }
+
+            console.log('User location obtained:', this.userLocation)
+
+            // Send location to baackend
+
+            return { success: true, location: this.userLocation }
+        } catch (error) {
+            console.error('Location error:', error.message)
+            // Don't fail login if location fails
+            return { success: false, error: error.message }
+        }
+    },
+
     logout() {
       this.user = null
       this.access = null
@@ -66,6 +93,9 @@ export const useUserStore = defineStore('user', {
       if (this.access) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${this.access}`
         this.fetchUser()
+
+        // Update location on initialization if user is already authenticated
+        this.updateUserLocation()
       }
     },
   },
