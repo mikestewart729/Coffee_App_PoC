@@ -71,12 +71,33 @@ export const useUserStore = defineStore('user', {
             console.log('User location obtained:', this.userLocation)
 
             // Send location to baackend
+            await this.saveUserLocationToBackend(position.latitude, position.longitude)
 
             return { success: true, location: this.userLocation }
         } catch (error) {
             console.error('Location error:', error.message)
             // Don't fail login if location fails
             return { success: false, error: error.message }
+        }
+    },
+
+    async saveUserLocationToBackend(latitude, longitude) {
+        try {
+            // PATCH the user's location latitude and longitude
+            const response = await axios.patch(`${API_URL}/user/update_location/`, {
+                location_lat: latitude,
+                location_lng: longitude,
+            })
+
+            // Update local user object
+            if (this.user) {
+                this.user.location_lat = response.data.location_lat
+                this.user.location_lng = response.data.location_lng
+            }
+
+            console.log('User location saved in backend:', response.data)
+        } catch (error) {
+            console.error('Error saving location to backend:', error)
         }
     },
 

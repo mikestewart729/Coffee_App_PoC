@@ -41,3 +41,31 @@ def signup(request):
             'success': False,
             'errors': serializer.errors
         }, status=400)
+    
+@api_view(['PATCH'])
+def update_user_location(request):
+    """Update the user's location"""
+    user = request.user
+    lat = request.data.get('location_lat')
+    lng = request.data.get('location_lng')
+    rad = request.data.get('default_search_radius')
+
+    # Update only if lat and lng are provided
+    if lat is not None and lng is not None:
+        user.location_lat = lat
+        user.location_lng = lng
+        # Think about perhaps a different endpoint for radius. For now, leave it here.
+        user.default_search_radius = (
+            rad if rad is not None else user.default_search_radius
+        )
+        user.save()
+        return JsonResponse({
+            'success': True,
+            'user': UserSerializer(user).data
+        }, status=200)
+    # Otherwise return an error indicating an invalid lat/lng
+    else:
+        return JsonResponse({
+            'success': False, 
+            'error': 'Invalid latitude or longitude'
+        }, status=400)
