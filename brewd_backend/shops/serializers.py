@@ -2,9 +2,22 @@ from rest_framework import serializers
 from .models import CoffeeShop, FavoriteShop
 
 class CoffeeShopSerializer(serializers.ModelSerializer):
+    distance_meters = serializers.FloatField(read_only=True, required=False)
+    distance_formatted = serializers.CharField(read_only=True, required=False)
+
     class Meta:
         model = CoffeeShop
-        fields = '__all__'
+        fields = [
+            'place_id',
+            'name',
+            'address',
+            'latitude',
+            'longitude',
+            'distance_meters',
+            'distance_formatted',
+            'last_updated',
+            'created_at'
+        ]
 
 class FavoriteShopSerializer(serializers.ModelSerializer):
     shop = CoffeeShopSerializer(read_only=True)
