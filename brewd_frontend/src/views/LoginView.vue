@@ -118,7 +118,7 @@ export default {
                     this.errors.push(response.error || 'Invalid username or password')
                     this.toastStore.showToast(
                         5000,
-                        result.error || 'Invalid username or password',
+                        response.error || 'Invalid username or password',
                         'bg-mykonos-error text-mykonos-textPrimary'
                     )
                 }
