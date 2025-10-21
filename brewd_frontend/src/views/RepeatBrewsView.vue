@@ -222,7 +222,7 @@ export default {
       try {
         // Send DELETE request to the API. 
         // We use the favoriteId (the ID of the saved record) here, not the shop's place_id.
-        await axios.delete(`/api/shops/favorites/${favoriteId}/`)
+        await axios.delete(`/shops/favorites/${favoriteId}/`)
         
         // Optimistically update the UI: filter the deleted item out of the array
         savedShops.value = savedShops.value.filter(fav => fav.id !== favoriteId)
@@ -246,7 +246,7 @@ export default {
       savedShops.value = []
 
       try {
-        const response = await axios.get('/api/shops/favorites/')
+        const response = await axios.get('/shops/favorites/')
         
         // Handle paginated or direct array response
         const favorites = response.data.results || response.data || []

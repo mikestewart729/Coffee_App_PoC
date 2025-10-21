@@ -332,7 +332,7 @@ export default {
 
     async fetchUserFavorites() {
       try {
-        const response = await axios.get('/api/shops/favorites/')
+        const response = await axios.get('/shops/favorites/')
         
         let favorites = []
         if (response.data.results) {
@@ -404,7 +404,7 @@ export default {
       this.favoriteLoading[placeId] = true
 
       try {
-        const response = await axios.post('/api/shops/favorites/', {
+        const response = await axios.post('/shops/favorites/', {
           shop_place_id: placeId,
           taste_rating: this.ratings.taste_rating || null,
           vibe_rating: this.ratings.vibe_rating || null,
@@ -441,7 +441,7 @@ export default {
       this.favoriteLoading[shop.place_id] = true
 
       try {
-        const response = await axios.get('/api/shops/favorites/')
+        const response = await axios.get('/shops/favorites/')
         const favorites = response.data.results || response.data
         
         const favorite = favorites.find(
@@ -449,7 +449,7 @@ export default {
         )
 
         if (favorite) {
-          await axios.delete(`/api/shops/favorites/${favorite.id}/`)
+          await axios.delete(`/shops/favorites/${favorite.id}/`)
 
           this.favoriteShops = this.favoriteShops.filter(
             id => id !== shop.place_id
