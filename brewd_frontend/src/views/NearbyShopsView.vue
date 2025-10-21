@@ -311,7 +311,7 @@ export default {
           return
         }
 
-        const response = await axios.get('/api/shops/nearby/', {
+        const response = await axios.get('/shops/nearby/', {
           params: {
             lat: location.latitude,
             lng: location.longitude,
