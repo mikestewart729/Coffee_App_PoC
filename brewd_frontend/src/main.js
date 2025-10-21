@@ -10,7 +10,8 @@ import axios from 'axios'
 
 const app = createApp(App)
 
-const baseURL = process.env.VITE_API_URL || 'http://127.0.0.1:8000/api/'; 
+const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/'; 
+console.log(import.meta.env.VITE_API_URL)
 
 axios.defaults.baseURL = baseURL;
 
