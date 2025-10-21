@@ -69,7 +69,7 @@ export default {
     data() {
         return {
             form: {
-                email: '',
+                username: '',
                 password: '',
             },
             errors: [],
@@ -80,6 +80,7 @@ export default {
     methods: {
         async submitForm() {
             this.errors = []
+            this.isLoading = true
 
             if (this.form.username === '') {
                 this.errors.push('Your username is missing')
@@ -114,7 +115,7 @@ export default {
                     console.log('Redirecting to home...')
                     await this.$router.push('/')
                 } else {
-                    this.errors.push(result.error || 'Invalid username or password')
+                    this.errors.push(response.error || 'Invalid username or password')
                     this.toastStore.showToast(
                         5000,
                         result.error || 'Invalid username or password',
