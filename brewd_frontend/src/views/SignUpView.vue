@@ -104,7 +104,7 @@ export default {
             }
 
             try {
-                const response = await axios.post('/api/signup/', {
+                const response = await axios.post('/signup/', {
                     username: this.form.username,
                     email: this.form.email,
                     password: this.form.password1
